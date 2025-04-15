@@ -1,12 +1,12 @@
 
 import React, { useRef, useState, useEffect } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { OrbitControls, Text, useTexture } from '@react-three/drei';
+import { OrbitControls, Text } from '@react-three/drei';
 import * as THREE from 'three';
 
 // Node component for our neural network
 const Node = ({ position, size = 0.5, color = '#7E3ACE', active, onInteract }) => {
-  const meshRef = useRef();
+  const meshRef = useRef<THREE.Mesh>(null);
   const [hovered, setHovered] = useState(false);
   const [opacity, setOpacity] = useState(Math.random() * 0.5 + 0.3); // Random opacity between 30-80%
   
@@ -54,7 +54,7 @@ const Node = ({ position, size = 0.5, color = '#7E3ACE', active, onInteract }) =
 
 // Connection line between nodes
 const Connection = ({ start, end, active, color = '#7E3ACE' }) => {
-  const ref = useRef();
+  const ref = useRef<THREE.Line>(null);
   const [opacity, setOpacity] = useState(0.2);
   
   useEffect(() => {
@@ -66,7 +66,7 @@ const Connection = ({ start, end, active, color = '#7E3ACE' }) => {
   }, [active]);
 
   useFrame(() => {
-    if (ref.current) {
+    if (ref.current && ref.current.geometry) {
       // Update the line geometry to connect the start and end points
       const points = [
         new THREE.Vector3(...start),
@@ -87,14 +87,14 @@ const Connection = ({ start, end, active, color = '#7E3ACE' }) => {
 // Particle system for flowing along connections
 const Particles = ({ start, end, active }) => {
   const count = 5;
-  const ref = useRef();
+  const ref = useRef<THREE.Points>(null);
   const [positions, setPositions] = useState(() => {
     const pos = new Float32Array(count * 3);
     return pos;
   });
 
   useFrame(({ clock }) => {
-    if (!active || !ref.current) return;
+    if (!active || !ref.current || !ref.current.geometry) return;
     
     const positions = ref.current.geometry.attributes.position.array;
     const time = clock.getElapsedTime();
@@ -108,7 +108,9 @@ const Particles = ({ start, end, active }) => {
       positions[i3 + 2] = start[2] + (end[2] - start[2]) * t;
     }
     
-    ref.current.geometry.attributes.position.needsUpdate = true;
+    if (ref.current.geometry.attributes.position) {
+      ref.current.geometry.attributes.position.needsUpdate = true;
+    }
   });
 
   return (
@@ -300,7 +302,8 @@ const NeuralNetworkVisualization = ({ onComplete }) => {
             color="#7E3ACE"
             anchorX="center"
             anchorY="middle"
-            opacity={transforming ? 0.8 : 0.5}
+            material-transparent={true}
+            material-opacity={transforming ? 0.8 : 0.5}
           >
             Automate
           </Text>
@@ -310,7 +313,8 @@ const NeuralNetworkVisualization = ({ onComplete }) => {
             color="#7E3ACE"
             anchorX="center"
             anchorY="middle"
-            opacity={transforming ? 0.8 : 0.5}
+            material-transparent={true}
+            material-opacity={transforming ? 0.8 : 0.5}
           >
             Optimize
           </Text>
@@ -320,7 +324,8 @@ const NeuralNetworkVisualization = ({ onComplete }) => {
             color="#7E3ACE"
             anchorX="center"
             anchorY="middle"
-            opacity={transforming ? 0.8 : 0.5}
+            material-transparent={true}
+            material-opacity={transforming ? 0.8 : 0.5}
           >
             Analyze
           </Text>
@@ -330,7 +335,8 @@ const NeuralNetworkVisualization = ({ onComplete }) => {
             color="#7E3ACE"
             anchorX="center"
             anchorY="middle"
-            opacity={transforming ? 0.8 : 0.5}
+            material-transparent={true}
+            material-opacity={transforming ? 0.8 : 0.5}
           >
             Connect
           </Text>
