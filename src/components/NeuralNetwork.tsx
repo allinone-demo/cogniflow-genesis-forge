@@ -1,4 +1,3 @@
-
 import React, { useRef, useState, useEffect } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Text } from '@react-three/drei';
@@ -144,12 +143,10 @@ const NeuralNetworkVisualization = ({ onComplete }) => {
   const [showKeywords, setShowKeywords] = useState(false);
   const [transforming, setTransforming] = useState(false);
   
-  // Generate initial network
   useEffect(() => {
     const nodeCount = 30;
     const newNodes = [];
     
-    // Generate random nodes in 3D space
     for (let i = 0; i < nodeCount; i++) {
       newNodes.push({
         id: i,
@@ -164,7 +161,6 @@ const NeuralNetworkVisualization = ({ onComplete }) => {
     
     setNodes(newNodes);
     
-    // Generate connections between nearby nodes
     const newConnections = [];
     for (let i = 0; i < nodeCount; i++) {
       for (let j = i + 1; j < nodeCount; j++) {
@@ -182,7 +178,6 @@ const NeuralNetworkVisualization = ({ onComplete }) => {
     setConnections(newConnections);
   }, []);
   
-  // Calculate distance between two points
   const calculateDistance = (p1, p2) => {
     return Math.sqrt(
       Math.pow(p2[0] - p1[0], 2) +
@@ -191,25 +186,20 @@ const NeuralNetworkVisualization = ({ onComplete }) => {
     );
   };
   
-  // Handle node interaction
   const handleNodeInteract = (position) => {
-    // Find nearby nodes
     const nearbyNodes = nodes.filter(node => 
       calculateDistance(node.position, position) < 4 &&
       node.position !== position
     );
     
-    // Set active nodes
     setActiveNodes(prev => {
       const currentActive = [...prev];
       const positionStr = position.toString();
       
-      // Add the interacted node if not already active
       if (!currentActive.some(pos => pos.toString() === positionStr)) {
         currentActive.push(position);
       }
       
-      // Add nearby nodes
       nearbyNodes.forEach(node => {
         const nodeStr = node.position.toString();
         if (!currentActive.some(pos => pos.toString() === nodeStr)) {
@@ -220,11 +210,9 @@ const NeuralNetworkVisualization = ({ onComplete }) => {
       return currentActive;
     });
     
-    // Set active connections
     setActiveConnections(prev => {
       const currentActive = [...prev];
       
-      // Find connections involving the active node
       connections.forEach(conn => {
         const startStr = conn.start.toString();
         const endStr = conn.end.toString();
@@ -240,16 +228,13 @@ const NeuralNetworkVisualization = ({ onComplete }) => {
       return currentActive;
     });
     
-    // Increment interaction count
     setInteractionCount(prev => {
       const newCount = prev + 1;
       
-      // Show keywords after enough interactions
       if (newCount >= 5 && !showKeywords) {
         setShowKeywords(true);
       }
       
-      // Start transformation after more interactions
       if (newCount >= 15 && !transforming) {
         setTransforming(true);
         setTimeout(() => {
@@ -352,7 +337,6 @@ const NeuralNetwork = () => {
   const [muted, setMuted] = useState(true);
   
   useEffect(() => {
-    // Show skip button after a delay
     const timeout = setTimeout(() => {
       setShowSkip(true);
     }, 3000);
@@ -362,7 +346,6 @@ const NeuralNetwork = () => {
   
   const handleComplete = () => {
     setInteractionComplete(true);
-    // Play sound effect if not muted
     if (!muted) {
       // Sound implementation would go here
     }
